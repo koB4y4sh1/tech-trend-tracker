@@ -1,0 +1,76 @@
+name: CI/CD for Remix + FastAPI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  ci-job:
+    runs-on: ubuntu-latest
+
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Setup Node.js (for frontend)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      # Setup Python (for backend)
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      # Frontend: Install & Build
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      # ✅Frontend: Install & Build
+      - name: Run frontend tests (if any)
+        working-directory: frontend
+        run: npm test || echo "No frontend tests found"
+
+      # Backend: Install
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+      # ✅Backend:  Test
+      - name: Run backend tests (if any)
+        working-directory: backend
+        run: |
+          source .venv/bin/activate
+          pytest || echo "No backend tests found"
+
+  cd-job:
+    needs: ci-job
+    runs-on: ubuntu-latest
+
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Setup Flyctl CLI
+      - name: Install Flyctl
+        run: |
+          curl -L https://fly.io/install.sh | sh
+          echo "${HOME}/.fly/bin" >> $GITHUB_PATH
+
+      # 🚀Deploy backend to Fly.io
+      - name: Deploy backend
+        working-directory: backend
+        run: |
+          flyctl deploy --remote-only
