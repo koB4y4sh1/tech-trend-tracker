@@ -18,19 +18,9 @@
     "vue"
   ],
 
-  // Formater設定
+  // Prettier設定
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true,  // ファイル保存時に自動フォーマットを有効
-  // 言語ごとのフォーマッタ設定
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
+  "editor.formatOnSave": false,  // 保存処理が重くなるため、自動整形無効
 
   // Setting Backend
   "python.analysis.extraPaths": [
