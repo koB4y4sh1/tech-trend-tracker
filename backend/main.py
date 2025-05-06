@@ -5,10 +5,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv 
 
+from src.api.crawl import router as crawl_router
+
 # .env を読み込む（ローカル開発時のみ有効）
 load_dotenv()
 
 app = FastAPI()
+
+# ルーティング設定
+app.include_router(crawl_router)
 
 # CORS設定
 origins = [
